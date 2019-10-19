@@ -20,6 +20,8 @@ function App() {
   //set last change data
   const [lastChange, setLastChange] = useState([]);
 
+  //store that hasn been manipulated
+
   //set page
   const [page, setPage] = useState(1);
 
@@ -28,6 +30,9 @@ function App() {
 
   //url state
   const [search, setSearch] = useState("");
+
+  //multi select search state
+  const [defaultValue, setDefaultValue] = useState({name: null, value: null});
 
   //search state
   const [isSearch, setIsSearch] = useState(false);
@@ -73,17 +78,20 @@ function App() {
   //   search && getSearch()
   // },[search])
 
+  //check an array .includes in another array or not
+  const checker = (target, arr) =>
+    target && target.every(v => arr && arr.includes(v));
+
   //filter by genre
   const filterByGenres = gen_id => {
-    console.log(gen_id && gen_id.map( ({value}) => value));
-
+    let id = gen_id && gen_id.map(({ value }) => value);
     const tempData = lastChange;
-
-    const filtered = tempData.map( ({genre_ids}) => {
-      const a = gen_id.some(num => num);
-      return a
+    const filtered = tempData.filter(item => {
+      if (checker(id, item.genre_ids)) return true;
     });
-    console.log(filtered)
+
+    setData(filtered);
+    setDefaultValue(gen_id)
   };
 
   //Search movies by keywords
@@ -134,15 +142,18 @@ function App() {
         <Row>
           <Col lg={3} className="filter-section">
             <CreatableSelect
+              defaultValue={defaultValue}
               isMulti
               components={animatedComponents}
+              inputValue={defaultValue.input}
+              value={defaultValue.name}
               options={
                 genre &&
                 genre.genres.map(({ name, id }) => {
                   return { value: id, label: name };
                 })
               }
-              onChange={value => filterByGenres(value)}
+              onChange={value => value && filterByGenres(value)}
             />
             <InputRange
               skip={0.1}
@@ -153,7 +164,13 @@ function App() {
                 filterByRating(value);
               }}
             />
-            <Button variant="dark" onClick={() => setData(lastChange)}>
+            <Button
+              variant="dark"
+              onClick={() => {
+                setData(lastChange);
+                setDefaultValue({name: null, value: null})
+              }}
+            >
               Reset filter
             </Button>
           </Col>
