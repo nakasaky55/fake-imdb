@@ -20,3 +20,43 @@
 .App-link {
   color: #09d3ac;
 }
+
+.card {
+  flex-direction: row;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.badge-holding {
+  display: flex;
+  justify-content: space-evenly;
+  padding: 5px 0;
+  flex-wrap: wrap;
+}
+
+.container {
+  padding-top: 58px;
+}
+
+.trailer-holding {
+  display:flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+}
+
+.button-trailer a{
+  color: white;
+}
+
+.modal-body iframe {
+  width: 100%;
+  min-height: 315px;
+}
+
+.nobackground {
+  background-color: none;
+}
+
+.filter-section > *{
+  margin-bottom: 20px;
+}
