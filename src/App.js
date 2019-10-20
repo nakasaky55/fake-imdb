@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import { Card, Button, Container, Row, Col, Nav } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
+// import "bootstrap/dist/css/bootstrap.min.css";
 import "react-input-range/lib/css/index.css";
 
 import Carousel from "./component/Carousel";
