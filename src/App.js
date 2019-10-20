@@ -161,10 +161,11 @@ function App() {
         onSetData={setData}
         onFilteredGenre={filterByGenres}
       />
-      <Carousel display={isNavbar} data={data && data} />
+      <Carousel display={isNavbar} data={lastChange && lastChange} />
       <Container>
         <Row>
           <Col lg={3} className="filter-section">
+            <p>Filter by genre</p>
             <CreatableSelect
               defaultValue={defaultValue}
               isMulti
@@ -179,6 +180,7 @@ function App() {
               }
               onChange={value => filterByGenres(value)}
             />
+            <p>Filter by Rating</p>
             <InputRange
               formatLabel={value => `${value}/10`}
               step={1}
