@@ -3,8 +3,11 @@ import "./App.css";
 import { Card, Button, Container, Row, Col, Nav } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-input-range/lib/css/index.css";
+
+import Carousel from "./component/Carousel";
 import MovieCard from "./component/MovieCard";
 import Navbar from "./component/Navbar";
+
 import InputRange from "react-input-range";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
@@ -20,7 +23,8 @@ function App() {
   //set last change data
   const [lastChange, setLastChange] = useState([]);
 
-  //store that hasn been manipulated
+  //set manipulated data
+  const [manipulatedData, setManipulatedData] = useState([]);
 
   //set page
   const [page, setPage] = useState(1);
@@ -32,7 +36,7 @@ function App() {
   const [search, setSearch] = useState("");
 
   //multi select search state
-  const [defaultValue, setDefaultValue] = useState({name: null, value: null});
+  const [defaultValue, setDefaultValue] = useState({ name: null, value: null });
 
   //search state
   const [isSearch, setIsSearch] = useState(false);
@@ -42,6 +46,15 @@ function App() {
     min: 5,
     max: 6
   });
+
+  //state to manage filter by genre
+  const [isFilterByGenre, setIsFilterByGenre] = useState(false);
+
+  //state to manage filter by rating
+  const [isFilterByRating, setIsFilterByRating] = useState(false);
+
+  //navbar state
+  const [isNavbar, setIsNavbar] = useState("relative");
 
   //Get trending when first open page
   const getAPI = async () => {
@@ -84,14 +97,39 @@ function App() {
 
   //filter by genre
   const filterByGenres = gen_id => {
+    if (gen_id !== null && gen_id.length != 0) {
+      setIsFilterByGenre(true);
+    } else {
+      setIsFilterByGenre(false);
+      setData(lastChange);
+      return;
+    }
+
     let id = gen_id && gen_id.map(({ value }) => value);
-    const tempData = lastChange;
+
+    let tempData;
+    isFilterByRating ? (tempData = manipulatedData) : (tempData = lastChange);
+
     const filtered = tempData.filter(item => {
       if (checker(id, item.genre_ids)) return true;
     });
 
     setData(filtered);
-    setDefaultValue(gen_id)
+    setManipulatedData(filtered);
+    setDefaultValue(gen_id);
+  };
+
+  //filter movies by input range
+  const filterByRating = value => {
+    let tempData;
+    isFilterByGenre ? (tempData = manipulatedData) : (tempData = lastChange);
+    setValue(value);
+    const listFiltered = tempData.filter(item => {
+      if (item.vote_average < value.max && item.vote_average > value.min)
+        return true;
+    });
+    setData(listFiltered);
+    setIsFilterByRating(true);
   };
 
   //Search movies by keywords
@@ -106,38 +144,24 @@ function App() {
     setData(datatemp);
     setLastChange(datatemp);
     setIsSearch(true);
-  };
-
-  //filter movies by input range
-  const filterByRating = value => {
-    const tempData = lastChange;
-    setValue(value);
-    const listFiltered = tempData.filter(item => {
-      if (item.vote_average < value.max && item.vote_average > value.min)
-        return true;
-    });
-    setData(listFiltered);
+    setIsNavbar("none")
   };
 
   const onResetFilter = () => {
     setData(data);
   };
-  console.log(
-    genre &&
-      genre.genres.map(({ name }) => {
-        return { value: name, label: name };
-      })
-  );
+
   return (
     <Container-fluid>
       <Navbar
+        
         dataGenre={genre}
         onSetSearch={setSearch}
         onSearch={getSearch}
         onSetData={setData}
         onFilteredGenre={filterByGenres}
       />
-
+      <Carousel display={isNavbar} data={data && data} />
       <Container>
         <Row>
           <Col lg={3} className="filter-section">
@@ -153,12 +177,13 @@ function App() {
                   return { value: id, label: name };
                 })
               }
-              onChange={value => value && filterByGenres(value)}
+              onChange={value => filterByGenres(value)}
             />
             <InputRange
-              skip={0.1}
-              maxValue={10}
-              minValue={0}
+              formatLabel={value => `${value}/10`}
+              step={1}
+              maxValue={10.0}
+              minValue={0.0}
               value={value}
               onChange={value => {
                 filterByRating(value);
@@ -168,7 +193,9 @@ function App() {
               variant="dark"
               onClick={() => {
                 setData(lastChange);
-                setDefaultValue({name: null, value: null})
+                setIsFilterByGenre(false);
+                setIsFilterByRating(false);
+                setDefaultValue({ name: null, value: null });
               }}
             >
               Reset filter

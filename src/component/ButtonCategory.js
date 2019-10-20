@@ -3,5 +3,5 @@ import { Badge } from "react-bootstrap";
 
 export default function ButtonCategory(props) {
     
-  return <Badge variant="primary">{props.data.name}</Badge>;
+  return <Badge className={props.data.name}>{props.data.name}</Badge>;
 }
