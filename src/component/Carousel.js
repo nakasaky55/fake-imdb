@@ -2,7 +2,7 @@ import React from "react";
 import { Carousel } from "react-bootstrap";
 
 export default function CarouselComponent(props) {
-    console.log(props.data)
+
   return (
     <Carousel>
       {props.data.map(item => {

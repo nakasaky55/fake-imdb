@@ -1,14 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Col, Modal, Button } from "react-bootstrap";
 import ButtonCategory from "./ButtonCategory";
-
-const API_KEY = "e9904e87af8c01979c10aff72e8fdd76";
 
 export default function MovieCard(props) {
   let name;
   const idData = props.data.genre_ids;
-  const [video, setVideo] = useState(null);
-  const [modalShow, setModalShow] = useState(false);
 
   // console.log(idData)
   if (props.dataGenre) {
@@ -21,45 +17,16 @@ export default function MovieCard(props) {
     });
   }
 
-  //get movie trailer
+  const API_KEY = "e9904e87af8c01979c10aff72e8fdd76";
+  //API call
   const getTrailer = async () => {
     const url = `https://api.themoviedb.org/3/movie/${props.data.id}/videos?api_key=${API_KEY}&language=en-US`;
 
     const response = await fetch(url);
     const result = await response.json();
 
-    setVideo(result.results);
+    props.setDataTrailer(result)
   };
-
-  useState(() => {
-    getTrailer();
-  }, [props.data]);
-
-  //modal
-  function MyVerticallyCenteredModal(props) {
-    return (
-      <Modal
-        {...props}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-      >
-        <Modal.Body>
-          <iframe
-            width="560"
-            height="400"
-            src={props.source}
-            frameborder="0"
-            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-          ></iframe>
-        </Modal.Body>
-        {/* <Modal.Footer>
-          <Button onClick={props.onHide}>Close</Button>
-        </Modal.Footer> */}
-      </Modal>
-    );
-  }
 
   return (
     <Col lg={4} md={6}>
@@ -75,7 +42,7 @@ export default function MovieCard(props) {
                 <ButtonCategory
                   movieData={props.data}
                   data={item}
-                  onFilteredGenre={props.onFilteredGenre}
+                  // onFilteredGenre={props.onFilteredGenre}
                 />
               );
             })}
@@ -86,33 +53,14 @@ export default function MovieCard(props) {
           <Card.Text>{props.data.overview}</Card.Text>
           <Card.Text>{props.data.vote_average}/10</Card.Text>
           <Card.Text className="trailer-holding">
-            {video &&
-              video
-                .filter(({ site, type }) => {
-                  if (site === "YouTube" && type === "Trailer") return true;
-                })
-                .map((a, i) => {
-                  return (
-                    <>
-                      <div>
-                        {/* {console.log("Link trailer" ,`https://www.youtube.com/embed/${a.key}?controls=0`)} */}
-                        <Button
-                          variant="outline-dark"
-                          size="lg"
-                          className="button-trailer"
-                          onClick={() => setModalShow(true)}
-                        >
-                          <a>Trailer {i + 1}</a>
-                        </Button>
-                      </div>
-                      <MyVerticallyCenteredModal
-                        show={modalShow}
-                        onHide={() => setModalShow(false)}
-                        source={`https://www.youtube.com/embed/${a.key}?controls=0`}
-                      />
-                    </>
-                  );
-                })}
+            <Button
+              onClick={() => {
+                props.setModalShow(true);
+                getTrailer()
+              }}
+            >
+              Offial trailer
+            </Button>
           </Card.Text>
         </Card.Body>
       </Card>
